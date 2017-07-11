@@ -26,7 +26,7 @@ amqp.connect('amqp://localhost', function(err, conn) {
                 }
             }, {noAck: true});
 
-            ch.sendToQueue('authsrv_queue',
+            ch.sendToQueue('configsrv_queue',
                 new Buffer(JSON.stringify(message)),
                 { correlationId: corr, replyTo: q.queue });
         });

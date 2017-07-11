@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 
-app.post('/user/register', user.registerNewUser);
+//app.post('/user/register', user.registerNewUser);
 app.post('/component/register', component.registerNewComponent);
 /*app.get('/poi', poi.listAllPOI);
 app.get('/poi/:id', poi.getPOI);

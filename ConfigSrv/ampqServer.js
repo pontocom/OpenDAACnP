@@ -2,7 +2,7 @@ var amqp = require('amqplib/callback_api');
 
 amqp.connect('amqp://localhost', function(err, conn) {
     conn.createChannel(function(err, ch) {
-        var q = 'authsrv_queue';
+        var q = 'configsrv_queue';
 
         ch.assertQueue(q, {durable: false});
         ch.prefetch(1);
@@ -10,7 +10,7 @@ amqp.connect('amqp://localhost', function(err, conn) {
         ch.consume(q, function reply(msg) {
             var message = msg.content.toString();
 
-            console.log(" [.] AUTHSRV RECEIVED -> %s", message);
+            console.log(" [.] CONFIGSRV RECEIVED -> %s", message);
 
             var sm = JSON.parse(message);
 
