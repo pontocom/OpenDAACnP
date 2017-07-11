@@ -1,0 +1,75 @@
+$aus_server->register('AUSrequestModifyUserSubscription',
+						array('identification'=>'xsd:string',
+						'signature_algorithm_identifier'=>'xsd:string',
+						'name'=>'xsd:string',
+						'address'=>'xsd:string',
+						'email_address'=>'xsd:string',
+						'authentication_type'=>'xsd:string',
+						'uid'=>'xsd:string',
+						'username'=>'xsd:string',
+						'password'=>'xsd:string',
+						'arbitrary_data'=>'xsd:string',
+						'signature'=>'xsd:string'),
+						array('result_message'=>'xsd:string'),
+						$NAMESPACE);
+
+$aus_server->register('AUSrequestUserSubscription',
+						array('identification'=>'xsd:string',
+						'signature_algorithm_identifier'=>'xsd:string',
+						'name'=>'xsd:string',
+						'address'=>'xsd:string',
+						'email_address'=>'xsd:string',
+						'authentication_type'=>'xsd:string',
+						'username'=>'xsd:string',
+						'password'=>'xsd:string',
+						'public_key'=>'xsd:string',
+						'arbitrary_data'=>'xsd:string',
+						'signature'=>'xsd:string'),
+						array('result_message'=>'xsd:string','user_id'=>'xsd:string'),
+						$NAMESPACE);
+
+$aus_server->register('AUSrequestAuthentication',
+						array('identification'=>'xsd:string', 'signature_algorithm_identifier'=>'xsd:string', 'authentication_type'=>'xsd:string', 'username'=>'xsd:string', 'password'=>'xsd:string', 'signature'=>'xsd:string'),
+						array('result_message'=>'xsd:string','user_id'=>'xsd:string'),
+						$NAMESPACE);
+
+$aus_server->register('AUSrequestDeleteUserSubscription',
+						array('identification'=>'xsd:string', 'signature_algorithm_identifier'=>'xsd:string', 'uid'=>'xsd:string', 'username'=>'xsd:string', 'password'=>'xsd:string', 'arbitrary_data'=>'xsd:string', 'signature'=>'xsd:string'),
+						array('result_message'=>'xsd:string'),
+						$NAMESPACE);
+
+$aus_server->register('AUSrequestComponentSubscription',
+						array('arbitrary_data'=>'xsd:string', 'public_key'=>'xsd:string', 'password'=>'xsd:string'),
+						array('result_message'=>'xsd:string','certificate'=>'xsd:string'),
+						$NAMESPACE);
+
+$aus_server->register('AUSrequestUserInfo',
+						array('identification'=>'xsd:string', 'signature_algorithm_identifier'=>'xsd:string', 'authentication_type'=>'xsd:string', 'uid'=>'xsd:string', 'username'=>'xsd:string', 'password'=>'xsd:string', 'signature'=>'xsd:string'),
+						array('result_message'=>'xsd:string',
+							'uid'=>'xsd:string',
+							'name'=>'xsd:string',
+							'address'=>'xsd:string',
+							'email'=>'xsd:string',
+							'other_data_xml'=>'xsd:string',
+							'certificate'=>'xsd:string'),
+						$NAMESPACE);
+
+$aus_server->register('AUSrequestUserPaymentInfo',
+						array('identification'=>'xsd:string', 'signature_algorithm_identifier'=>'xsd:string', 'pgw_identification'=>'xsd:string', 'user_identification'=>'xsd:string', 'pvalue'=>'xsd:string', 'signature'=>'xsd:string'),
+						array('result_message'=>'xsd:string','payclearer'=>'xsd:string'),
+						$NAMESPACE);
+
+$aus_server->register('AUSrequestListOfPGW',
+						array('identification'=>'xsd:string', 'signature_algorithm_identifier'=>'xsd:string', 'authentication_type'=>'xsd:string', 'signature'=>'xsd:string'),
+						array('result_message'=>'xsd:string', 'list_of_pgw'=>'xsd:string'),
+						$NAMESPACE);
+
+$aus_server->register('AUSrequestMutualValidation',
+						array('uid'=>'xsd:string', 'login'=>'xsd:string', 'hash'=>'xsd:string'),
+						array('result_message'=>'xsd:string'),
+						$NAMESPACE);
+
+$aus_server->register('AUSrequestWalletVerification',
+						array('uid'=>'xsd:string'),
+						array('result_message'=>'xsd:string'),
+						$NAMESPACE);
