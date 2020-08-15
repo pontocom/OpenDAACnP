@@ -1,0 +1,11 @@
+.idea
+AuthSrv/certs/*
+AuthSrv/keys/*
+AuthSrv/node_modules/*
+ConfigSrv/certs/*
+ConfigSrv/keys/*
+ConfigSrv/csr/*
+ConfigSrv/node_modules/*
+.DS_Store
+AuthSrv/package-lock.json
+ConfigSrv/package-lock.json

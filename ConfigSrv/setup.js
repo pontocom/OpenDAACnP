@@ -14,7 +14,7 @@
 var forge = require('node-forge');
 var fs = require('fs');
 var config = require('./config');
-var uuid = require('node-uuid');
+var uuid = require('uuid');
 var Client = require('node-rest-client').Client;
 
 var pki = forge.pki;
