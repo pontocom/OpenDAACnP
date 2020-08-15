@@ -2,9 +2,21 @@ var express = require('express');
 var forge = require('node-forge');
 var fs = require('fs');
 var config = require('./config');
+var mongoose = require('mongoose');
 
 // we need to setup the database and the collections we need to have on the database -> Mongo!
-var _db =  require('mongoskin').db(config.database);
+var db = mongoose.connect(config.database, { useUnifiedTopology: true, useNewUrlParser: true });
+
+const componentSchema = new mongoose.Schema({
+    uuid: String,
+    name: String,
+    location: String,
+    description: String,
+    csr: String,
+    cert: String
+});
+
+const Component = mongoose.model('Component', componentSchema);
 
 /**
  * Receives the different parameters to be registered!!!
@@ -36,7 +48,7 @@ exports.registerNewComponent = function(req, res) {
         throw new Error('Signature not verified!!!');
     }
 
-    _db.collection('component').count(function (err, count) {
+    Component.countDocuments(function(err, count) {
         console.log('Creating certificate # => ' + (count+1));
 
         var snumber = count + 1;
@@ -83,16 +95,18 @@ exports.registerNewComponent = function(req, res) {
         var finalCert = forge.pki.certificateToPem(cert);
         //fs.writeFileSync("./certs/test.pem", finalCert);
 
-         var component = {
+        var component = {
              uuid: req.body.uuid,
              name: req.body.name,
              location: req.body.location,
              description: req.body.description,
              csr: csrPem,
              cert: finalCert
-         };
+        };
 
-         _db.collection('component').insert(component, function (err, result) {
+        var newComponent = new Component(component);
+
+        newComponent.save(function (err, result) {
              if(err) {
                  res.send({status: 'NOK'});
                  throw err;
