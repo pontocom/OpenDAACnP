@@ -29,7 +29,7 @@ amqp.connect('amqp://localhost', function(err, conn) {
             };
 
             ch.sendToQueue(msg.properties.replyTo,
-                new Buffer(JSON.stringify(answer)),
+                new Buffer.from(JSON.stringify(answer)),
                 {correlationId: msg.properties.correlationId});
 
             ch.ack(msg);
