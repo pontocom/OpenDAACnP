@@ -2,115 +2,126 @@
  * Created by cserrao on 11/07/2017.
  */
 
-var express = require('express');
-var forge = require('node-forge');
-var fs = require('fs');
-var config = require('./config');
-var mongoose = require('mongoose');
+var express = require("express");
+var forge = require("node-forge");
+var fs = require("fs");
+var config = require("./config");
+var mongoose = require("mongoose");
 
 // we need to setup the database and the collections we need to have on the database -> Mongo!
-var db = mongoose.connect(config.database, { useUnifiedTopology: true, useNewUrlParser: true });
-
-const userSchema = new mongoose.Schema({
-    uuid: String,
-    name: String,
-    description: String,
-    csr: String,
-    cert: String
+var db = mongoose.connect(config.database, {
+  useUnifiedTopology: true,
+  useNewUrlParser: true,
 });
 
-const User = mongoose.model('User', userSchema);
+const userSchema = new mongoose.Schema({
+  uuid: String,
+  name: String,
+  description: String,
+  csr: String,
+  cert: String,
+});
 
-exports.registerNewUser = function(req, res) {
-    console.log("USER Registration Request...");
-    console.log(req.body);
+const User = mongoose.model("User", userSchema);
 
-    // read the CSR
-    var csrPem = req.body.csr;
-    var csr = forge.pki.certificationRequestFromPem(csrPem);
+exports.registerNewUser = function (req, res) {
+  console.log("USER Registration Request...");
+  console.log(req.body);
 
-    // read AuthSrv cert and key
-    var AuthSrvCertPem = fs.readFileSync('./certs/authSrvCert.pem', 'utf8');
-    var AuthSrvCertKeyPem = fs.readFileSync('./keys/authSrvPrivateKey.pem', 'utf8');
-    var AuthSrvCert = forge.pki.certificateFromPem(AuthSrvCertPem);
-    var AuthSrvCertKey = forge.pki.privateKeyFromPem(AuthSrvCertKeyPem);
+  // read the CSR
+  var csrPem = req.body.csr;
+  var csr = forge.pki.certificationRequestFromPem(csrPem);
 
-    if(csr.verify()) {
-        console.log('CSR verified!!!');
-    } else {
-        res.send({status: 'NOK', message: 'CSR Signature not verified!!!'});
-        throw new Error('Signature not verified!!!');
-    }
+  // read AuthSrv cert and key
+  var AuthSrvCertPem = fs.readFileSync("./certs/authSrvCert.pem", "utf8");
+  var AuthSrvCertKeyPem = fs.readFileSync(
+    "./keys/authSrvPrivateKey.pem",
+    "utf8"
+  );
+  var AuthSrvCert = forge.pki.certificateFromPem(AuthSrvCertPem);
+  var AuthSrvCertKey = forge.pki.privateKeyFromPem(AuthSrvCertKeyPem);
 
-    User.countDocuments(function(err, count) {
-        console.log('Creating certificate # => ' + (count+1));
+  if (csr.verify()) {
+    console.log("CSR verified!!!");
+  } else {
+    res.send({ status: "NOK", message: "CSR Signature not verified!!!" });
+    throw new Error("Signature not verified!!!");
+  }
 
-        var snumber = count + 1;
+  User.countDocuments(function (err, count) {
+    console.log("Creating certificate # => " + (count + 1));
 
-        // start the process to create a new certificate
-        var cert = forge.pki.createCertificate();
+    var snumber = count + 1;
 
-        // this needs to be changed afterwards
-        cert.serialNumber = '' + snumber;
+    // start the process to create a new certificate
+    var cert = forge.pki.createCertificate();
 
-        cert.validity.notBefore = new Date();
-        cert.validity.notAfter = new Date();
-        cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + config.issuedcert_years);
+    // this needs to be changed afterwards
+    cert.serialNumber = "" + snumber;
 
-        // subject from CSR
-        cert.setSubject(csr.subject.attributes);
-        // issuer from CA
-        cert.setIssuer(AuthSrvCert.subject.attributes);
+    cert.validity.notBefore = new Date();
+    cert.validity.notAfter = new Date();
+    cert.validity.notAfter.setFullYear(
+      cert.validity.notBefore.getFullYear() + config.issuedcert_years
+    );
 
-        cert.setExtensions([{
-            name: 'basicConstraints',
-            cA: true
-        }, {
-            name: 'keyUsage',
-            keyCertSign: true,
-            digitalSignature: true,
-            nonRepudiation: true,
-            keyEncipherment: true,
-            dataEncipherment: true
-        }, {
-            name: 'subjectAltName',
-            altNames: [{
-                type: 6, // URI
-                value: 'http://example.org/webid#me'
-            }]
-        }]);
+    // subject from CSR
+    cert.setSubject(csr.subject.attributes);
+    // issuer from CA
+    cert.setIssuer(AuthSrvCert.subject.attributes);
 
-        cert.publicKey = csr.publicKey;
+    cert.setExtensions([
+      {
+        name: "basicConstraints",
+        cA: true,
+      },
+      {
+        name: "keyUsage",
+        keyCertSign: true,
+        digitalSignature: true,
+        nonRepudiation: true,
+        keyEncipherment: true,
+        dataEncipherment: true,
+      },
+      {
+        name: "subjectAltName",
+        altNames: [
+          {
+            type: 6, // URI
+            value: "http://example.org/webid#me",
+          },
+        ],
+      },
+    ]);
 
-        cert.sign(AuthSrvCertKey);
-        console.log('Certificate created.');
+    cert.publicKey = csr.publicKey;
 
-        console.log('\nWriting Certificate');
-        var finalCert = forge.pki.certificateToPem(cert);
-        //fs.writeFileSync("./certs/test.pem", finalCert);
+    cert.sign(AuthSrvCertKey);
+    console.log("Certificate created.");
 
-        var user = {
-             uuid: req.body.uuid,
-             name: req.body.name,
-             description: req.body.description,
-             csr: csrPem,
-             cert: finalCert
-        };
+    console.log("\nWriting Certificate");
+    var finalCert = forge.pki.certificateToPem(cert);
+    //fs.writeFileSync("./certs/test.pem", finalCert);
 
-        var newUser = new User(user);
+    var user = {
+      uuid: req.body.uuid,
+      name: req.body.name,
+      description: req.body.description,
+      csr: csrPem,
+      cert: finalCert,
+    };
 
-        newUser.save(function (err, result) {
-             if(err) {
-                 res.send({status: 'NOK'});
-                 throw err;
-             }
-             else {
-                 console.log('All good!');
-                 console.log(result);
-                 res.send({status: 'OK', cert: finalCert});
-             }
-         });
+    var newUser = new User(user);
 
+    newUser.save(function (err, result) {
+      if (err) {
+        res.send({ status: "NOK" });
+        throw err;
+      } else {
+        console.log("All good!");
+        console.log(result);
+        res.send({ status: "OK", cert: finalCert });
+      }
     });
+  });
 };
-

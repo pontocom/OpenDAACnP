@@ -1,38 +1,43 @@
-var amqp = require('amqplib/callback_api');
+var amqp = require("amqplib/callback_api");
 
-amqp.connect('amqp://localhost', function(err, conn) {
-    conn.createChannel(function(err, ch) {
-        var q = 'authsrv_queue';
+amqp.connect("amqp://localhost", function (err, conn) {
+  conn.createChannel(function (err, ch) {
+    var q = "authsrv_queue";
 
-        ch.assertQueue(q, {durable: false});
-        ch.prefetch(1);
-        console.log(' [x] Awaiting RPC requests');
-        ch.consume(q, function reply(msg) {
-            var message = msg.content.toString();
+    ch.assertQueue(q, { durable: false });
+    ch.prefetch(1);
+    console.log(" [x] Awaiting RPC requests");
+    ch.consume(q, function reply(msg) {
+      var message = msg.content.toString();
 
-            console.log(" [.] AUTHSRV RECEIVED -> %s", message);
+      console.log(" [.] AUTHSRV RECEIVED -> %s", message);
 
-            var sm = JSON.parse(message);
+      var sm = JSON.parse(message);
 
-            var answerType = "";
+      var answerType = "";
 
-            switch(sm.type) {
-                case "AUTH_USER": answerType = "AUTH_USER SUCCESS";
-                    break;
-                case "AUTH_COMPONENT": answerType = "AUTH_COMPONENT SUCCESS";
-                    break;
-                default: answerType = "WRONG MESSAGE";
-            }
+      switch (sm.type) {
+        case "AUTH_USER":
+          answerType = "AUTH_USER SUCCESS";
+          break;
+        case "AUTH_COMPONENT":
+          answerType = "AUTH_COMPONENT SUCCESS";
+          break;
+        default:
+          answerType = "WRONG MESSAGE";
+      }
 
-            var answer = {
-                type: answerType
-            };
+      var answer = {
+        type: answerType,
+      };
 
-            ch.sendToQueue(msg.properties.replyTo,
-                new Buffer.from(JSON.stringify(answer)),
-                {correlationId: msg.properties.correlationId});
+      ch.sendToQueue(
+        msg.properties.replyTo,
+        new Buffer.from(JSON.stringify(answer)),
+        { correlationId: msg.properties.correlationId }
+      );
 
-            ch.ack(msg);
-        });
+      ch.ack(msg);
     });
+  });
 });
